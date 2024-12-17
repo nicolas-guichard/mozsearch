@@ -431,17 +431,14 @@ fn main() {
 
         match Path::new(path.as_str()).extension().and_then(OsStr::to_str) {
             Some("md") | Some("rst") => {
-                match find_doc_url(&cfg, path.as_str()) {
-                    Some(url) => {
-                        tools_items.push(PanelItem {
-                            title: "Source Docs".to_owned(),
-                            link: url,
-                            update_link_lineno: "",
-                            accel_key: None,
-                            copyable: false,
-                        });
-                    }
-                    None => {}
+                if let Some(url) = find_doc_url(&cfg, path.as_str()) {
+                    tools_items.push(PanelItem {
+                        title: "Source Docs".to_owned(),
+                        link: url,
+                        update_link_lineno: "",
+                        accel_key: None,
+                        copyable: false,
+                    });
                 }
 
                 if let Some(ref github) = tree_config.paths.github_repo {
