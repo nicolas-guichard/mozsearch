@@ -22,6 +22,6 @@ geckodriver >/dev/null 2>&1 &
 sleep 10
 
 echo "Running tests"
-./tools/target/release/searchfox-tool "webtest ${FILTER}"
+searchfox-tool "webtest ${FILTER}"
 
 stop_geckodriver
