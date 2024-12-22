@@ -36,7 +36,7 @@ git config --global pull.ff only
 # we have git, so let's check out mozsearch now so we can have our email sending
 # script in case of an error.
 if [ ! -d mozsearch ]; then
-  git clone -b master https://github.com/mozsearch/mozsearch mozsearch --depth=1
+  git clone -b space-saving https://github.com/nicolas-guichard/mozsearch mozsearch --depth=1
 fi
 
 # the base image we're building against is inherently not up-to-date (new base

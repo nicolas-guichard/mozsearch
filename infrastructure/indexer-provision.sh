@@ -101,10 +101,10 @@ chmod +x update.sh
 # this really is just:
 # - Validating the image can compile and use rust and clang correctly.
 # - Caching some crates in `~/.cargo`.
-./update.sh master https://github.com/mozsearch/mozsearch https://github.com/mozsearch/mozsearch-mozilla
+./update.sh space-saving https://github.com/nicolas-guichard/mozsearch https://github.com/nicolas-guichard/mozsearch-mozilla
 mv update-log provision-update-log-1
 
 # Run this a second time to make sure the script is actually idempotent, so we
 # don't have any surprises when the update script gets run when the VM spins up.
-./update.sh master https://github.com/mozsearch/mozsearch https://github.com/mozsearch/mozsearch-mozilla
+./update.sh space-saving https://github.com/nicolas-guichard/mozsearch https://github.com/nicolas-guichard/mozsearch-mozilla
 mv update-log provision-update-log-2
