@@ -1,1 +1,0 @@
-filter-analysis css/test.css --symbol-prefix 'FILE_'
