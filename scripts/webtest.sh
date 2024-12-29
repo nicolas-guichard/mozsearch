@@ -6,14 +6,6 @@ set -x
 
 FILTER=${1:-}
 
-cargo install geckodriver
-
-if ! [ -d mozsearch-firefox ]; then
-    curl -L -o mozsearch-firefox.tar.bz2 "https://download.mozilla.org/?product=firefox-latest&os=linux64"
-    tar xf mozsearch-firefox.tar.bz2
-    mv firefox mozsearch-firefox
-fi
-
 stop_geckodriver() {
     PID=$(pgrep geckodriver || true)
     if [ "x${PID}" != "x" ]; then
@@ -25,7 +17,7 @@ stop_geckodriver() {
 stop_geckodriver
 
 echo "Starting geckodriver"
-geckodriver -b /vagrant/mozsearch-firefox/firefox >/dev/null 2>&1 &
+geckodriver >/dev/null 2>&1 &
 
 sleep 10
 
