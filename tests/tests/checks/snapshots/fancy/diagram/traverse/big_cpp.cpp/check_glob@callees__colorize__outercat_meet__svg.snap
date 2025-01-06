@@ -17,13 +17,13 @@ expression: "&fb.contents"
 <g id="node1" class="node">
 <title>_ZN7outerNS8OuterCat4meetERNS_5CouchE</title>
 <polygon fill="none" stroke="black" points="460,-324 306,-324 306,-288 460,-288 460,-324"/>
-<text text-anchor="middle" x="383" y="-302.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::meet</text>
+<text text-anchor="middle" x="383" y="-302.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::meet</text>
 </g>
 <!-- _ZN7outerNS8OuterCat13isFriendlyCatEv -->
 <g id="node2" class="node">
 <title>_ZN7outerNS8OuterCat13isFriendlyCatEv</title>
 <polygon fill="none" stroke="black" points="208,-180 0,-180 0,-144 208,-144 208,-180"/>
-<text text-anchor="middle" x="104" y="-158.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isFriendlyCat</text>
+<text text-anchor="middle" x="104" y="-158.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isFriendlyCat</text>
 </g>
 <!-- _ZN7outerNS8OuterCat4meetERNS_5CouchE&#45;&gt;_ZN7outerNS8OuterCat13isFriendlyCatEv -->
 <g id="edge1" class="edge">
@@ -35,7 +35,7 @@ expression: "&fb.contents"
 <g id="node3" class="node">
 <title>_ZN7outerNS8OuterCat31isFriendlyIfNotCurrentlyVisibleEv</title>
 <polygon fill="none" stroke="black" points="448,-252 132,-252 132,-216 448,-216 448,-252"/>
-<text text-anchor="middle" x="290" y="-230.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isFriendlyIfNotCurrentlyVisible</text>
+<text text-anchor="middle" x="290" y="-230.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isFriendlyIfNotCurrentlyVisible</text>
 </g>
 <!-- _ZN7outerNS8OuterCat4meetERNS_5CouchE&#45;&gt;_ZN7outerNS8OuterCat31isFriendlyIfNotCurrentlyVisibleEv -->
 <g id="edge2" class="edge">
@@ -47,7 +47,7 @@ expression: "&fb.contents"
 <g id="node4" class="node">
 <title>_ZN7outerNS8OuterCat5shredERNS_5ThingE</title>
 <polygon fill="#b3e2cd" stroke="black" points="662,-180 502,-180 502,-144 662,-144 662,-180"/>
-<text text-anchor="middle" x="582" y="-158.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::shred</text>
+<text text-anchor="middle" x="582" y="-158.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::shred</text>
 </g>
 <!-- _ZN7outerNS8OuterCat4meetERNS_5CouchE&#45;&gt;_ZN7outerNS8OuterCat5shredERNS_5ThingE -->
 <g id="edge3" class="edge">
@@ -59,7 +59,7 @@ expression: "&fb.contents"
 <g id="node5" class="node">
 <title>_ZN7outerNS8OuterCat7destroyERNS_5ThingE</title>
 <polygon fill="none" stroke="black" points="676,-252 504,-252 504,-216 676,-216 676,-252"/>
-<text text-anchor="middle" x="590" y="-230.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::destroy</text>
+<text text-anchor="middle" x="590" y="-230.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::destroy</text>
 </g>
 <!-- _ZN7outerNS8OuterCat4meetERNS_5CouchE&#45;&gt;_ZN7outerNS8OuterCat7destroyERNS_5ThingE -->
 <g id="edge4" class="edge">
@@ -77,7 +77,7 @@ expression: "&fb.contents"
 <g id="node8" class="node">
 <title>_ZN7outerNS8OuterCat20isSecretlyUnfriendlyEv</title>
 <polygon fill="none" stroke="black" points="476,-180 226,-180 226,-144 476,-144 476,-180"/>
-<text text-anchor="middle" x="351" y="-158.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isSecretlyUnfriendly</text>
+<text text-anchor="middle" x="351" y="-158.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::isSecretlyUnfriendly</text>
 </g>
 <!-- _ZN7outerNS8OuterCat31isFriendlyIfNotCurrentlyVisibleEv&#45;&gt;_ZN7outerNS8OuterCat20isSecretlyUnfriendlyEv -->
 <g id="edge7" class="edge">
@@ -89,7 +89,7 @@ expression: "&fb.contents"
 <g id="node9" class="node">
 <title>_ZN7outerNS5Thing10takeDamageEi</title>
 <polygon fill="none" stroke="black" points="668,-108 496,-108 496,-72 668,-72 668,-108"/>
-<text text-anchor="middle" x="582" y="-86.12" font-family="Courier New" font-size="10.00">outerNS::Thing::takeDamage</text>
+<text text-anchor="middle" x="582" y="-86.88" font-family="Courier New" font-size="10.00">outerNS::Thing::takeDamage</text>
 </g>
 <!-- _ZN7outerNS8OuterCat5shredERNS_5ThingE&#45;&gt;_ZN7outerNS5Thing10takeDamageEi -->
 <g id="edge8" class="edge">
@@ -107,13 +107,13 @@ expression: "&fb.contents"
 <g id="node6" class="node">
 <title>_ZN7outerNS8OuterCat4meetERNS_5HumanE</title>
 <polygon fill="none" stroke="black" points="845,-324 691,-324 691,-288 845,-288 845,-324"/>
-<text text-anchor="middle" x="768" y="-302.12" font-family="Courier New" font-size="10.00">outerNS::OuterCat::meet</text>
+<text text-anchor="middle" x="768" y="-302.88" font-family="Courier New" font-size="10.00">outerNS::OuterCat::meet</text>
 </g>
 <!-- _ZN7outerNS5Thing6ignoreEv -->
 <g id="node7" class="node">
 <title>_ZN7outerNS5Thing6ignoreEv</title>
 <polygon fill="none" stroke="black" points="842,-252 694,-252 694,-216 842,-216 842,-252"/>
-<text text-anchor="middle" x="768" y="-230.12" font-family="Courier New" font-size="10.00">outerNS::Thing::ignore</text>
+<text text-anchor="middle" x="768" y="-230.88" font-family="Courier New" font-size="10.00">outerNS::Thing::ignore</text>
 </g>
 <!-- _ZN7outerNS8OuterCat4meetERNS_5HumanE&#45;&gt;_ZN7outerNS5Thing6ignoreEv -->
 <g id="edge5" class="edge">
@@ -125,7 +125,7 @@ expression: "&fb.contents"
 <g id="node10" class="node">
 <title>_ZN7outerNS9Superhero10takeDamageEi</title>
 <polygon fill="none" stroke="black" points="680,-36 484,-36 484,0 680,0 680,-36"/>
-<text text-anchor="middle" x="582" y="-14.12" font-family="Courier New" font-size="10.00">outerNS::Superhero::takeDamage</text>
+<text text-anchor="middle" x="582" y="-14.88" font-family="Courier New" font-size="10.00">outerNS::Superhero::takeDamage</text>
 </g>
 <!-- _ZN7outerNS5Thing10takeDamageEi&#45;&gt;_ZN7outerNS9Superhero10takeDamageEi -->
 <g id="edge10" class="edge">
