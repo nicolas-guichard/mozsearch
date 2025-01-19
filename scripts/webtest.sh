@@ -27,6 +27,8 @@ stop_geckodriver
 echo "Starting geckodriver"
 geckodriver -b /vagrant/mozsearch-firefox/firefox >/dev/null 2>&1 &
 
+sleep 10
+
 echo "Running tests"
 ./tools/target/release/searchfox-tool "webtest ${FILTER}"
 
