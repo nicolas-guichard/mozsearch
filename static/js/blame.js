@@ -203,6 +203,25 @@ var BlamePopup = new (class BlamePopup {
     }
   }
 
+  withSiMultiplier(number) {
+    const multipliers = [
+      [18, "exa",  "E"],
+      [15, "peta", "P"],
+      [12, "tera", "T"],
+      [9,  "giga", "G"],
+      [6,  "mega", "M"],
+      [3,  "kilo", "k"],
+    ];
+
+    for (const [exponent, name, symbol] of multipliers) {
+      const threshold = 10**exponent;
+      if (number >= threshold) {
+        return `${number / threshold}&#x202F;<abbr title="${name}">${symbol}</abbr>`;
+      }
+    }
+    return `${number}`;
+  }
+
   async generateCoverageContent(elt) {
     let content = "<div>";
 
@@ -222,15 +241,20 @@ var BlamePopup = new (class BlamePopup {
     } else if (elt.classList.contains("cov-uncovered")) {
       content += `This line wasn't instrumented for coverage.`;
     } else {
-      const logOnePlusHitCount = parseInt(elt.dataset.coverage, 10);
-      if (logOnePlusHitCount === 0) {
+      const x = parseInt(elt.dataset.coverage, 10);
+      if (x === 0) {
         content += `This line was not hit during test runs.`;
       } else {
-        const hitCountMin = 10 ** (logOnePlusHitCount - 1);
-        const hitCountMax = 10 ** logOnePlusHitCount;
-        content +=
-          `This line was hit between ${hitCountMin} and ${hitCountMax} times ` +
-          `per coverage instrumentation.`;
+        if (elt.classList.contains("cov-exact")) {
+          const hitCount = x.toLocaleString();
+          content += `This line was hit ${hitCount} times per coverage instrumentation.`;
+        } else {
+          const hitCountMin = this.withSiMultiplier(10 ** (x - 1));
+          const hitCountMax = this.withSiMultiplier(10 ** x);
+          content +=
+            `This line was hit between ${hitCountMin} and ${hitCountMax} times ` +
+            `per coverage instrumentation.`;
+        }
       }
     }
 

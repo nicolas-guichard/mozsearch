@@ -30,6 +30,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/attribute__json
           "structured": 1,
           "pretty": "tsClass::tsAttribute",
           "sym": "S_js_ts/src/bindings.d.ts/tsClass#tsAttribute.",
+          "js_sym": "#tsAttribute",
           "type_pretty": "string",
           "kind": "field",
           "subsystem": null,
@@ -53,10 +54,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/attribute__json
           "overrides": [],
           "props": [],
           "variants": []
-        },
-        "idl_syms": [
-          "XPIDL_nsIXPCTestObjectReadWrite_stringProperty"
-        ]
+        }
       },
       "relation": "Queried",
       "quality": "ExactIdentifier",

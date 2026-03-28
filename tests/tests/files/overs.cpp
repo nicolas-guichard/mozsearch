@@ -77,3 +77,69 @@ void generateTripleUses(void) {
   explicitTwo.triplePure();
   explicitThree.triplePure();
 }
+
+class SingleBase {
+ public:
+  virtual void singlePure() = 0;
+};
+
+class SingleSub : public SingleBase {
+ public:
+  void singlePure() override {}
+};
+
+class TwentyBase {
+ public:
+  virtual void twentyPure() = 0;
+};
+
+#define TWENTY_SUB(N)                                                         \
+  class TwentySub ## N : public TwentyBase {                                  \
+   public:                                                                    \
+    void twentyPure() override {}                                             \
+  }
+
+class TwentySub0 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+class TwentySub1 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+class TwentySub2 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+class TwentySub3 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+class TwentySub4 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+class TwentySub5 : public TwentyBase {
+ public:
+  void twentyPure() override {}
+};
+
+TWENTY_SUB(6);
+TWENTY_SUB(7);
+TWENTY_SUB(8);
+TWENTY_SUB(9);
+TWENTY_SUB(10);
+TWENTY_SUB(11);
+TWENTY_SUB(12);
+TWENTY_SUB(13);
+TWENTY_SUB(14);
+TWENTY_SUB(15);
+TWENTY_SUB(16);
+TWENTY_SUB(17);
+TWENTY_SUB(18);
+TWENTY_SUB(19);

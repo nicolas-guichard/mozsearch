@@ -561,6 +561,9 @@ where
     pub pretty: StrT,
     #[serde(default)]
     pub sym: StrT,
+    /// For scip-typescript symbols, the equivalent js-analyze symbol.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub js_sym: Option<StrT>,
     // XXX Adding this right now for scip-indexer because we're using the analysis
     // rep as the canonical info to provide to the source record, and right now this
     // only exists on source records and fields.
@@ -610,9 +613,6 @@ where
     #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
     pub labels: BTreeSet<StrT>,
 
-    // ### Derived by cross-referencing
-    #[serde(rename = "idlsym", skip_serializing_if = "Option::is_none")]
-    pub idl_sym: Option<StrT>,
     // Note: Originally these (subclasses, overriddenBy) were meant to hold
     // { pretty, sym } for symmetry, but now the code and docs do reflect these
     // as being symbol only.
