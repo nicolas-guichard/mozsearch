@@ -468,8 +468,7 @@ fn blame_for_path(
     for (parent, blame_parent) in commit.parents().zip(blame_parents.iter()).rev() {
         let parent_path = diff_data
             .file_movement
-            .as_ref()
-            .and_then(|m| m.get(&blob.id()))
+            .get(&blob.id())
             .map(|p| p.borrow())
             .unwrap_or(path);
         let unmodified_lines = match diff_data
@@ -512,7 +511,7 @@ fn blame_for_path(
 // modified in `commit`, relative to all the parents. The results are populated
 // into the `results` HashMap.
 fn find_unmodified_lines(
-    file_movement: Option<&HashMap<Oid, PathBuf>>,
+    file_movement: &HashMap<Oid, PathBuf>,
     git_repo: &git2::Repository,
     commit: &git2::Commit,
     mut path: PathBuf,
@@ -542,9 +541,7 @@ fn find_unmodified_lines(
             Some(ObjectType::Blob) => {
                 let blob = entry.to_object(git_repo)?.peel_to_blob()?;
                 for parent in commit.parents() {
-                    let parent_path = file_movement
-                        .and_then(|m| m.get(&blob.id()))
-                        .unwrap_or(&path);
+                    let parent_path = file_movement.get(&blob.id()).unwrap_or(&path);
                     let parent_blob = match parent.tree()?.get_path(parent_path) {
                         Ok(t) if t.kind() == Some(ObjectType::Blob) => {
                             t.to_object(git_repo)?.peel_to_blob()?
@@ -768,7 +765,7 @@ struct DiffData {
     // Map from file (blob) id in the child rev to the path that the file was
     // at in the parent revision, for files that got moved. Set to None if the
     // child rev has multiple parents.
-    file_movement: Option<HashMap<Oid, PathBuf>>,
+    file_movement: HashMap<Oid, PathBuf>,
     // Map to find unmodified lines for modified files in a revision (files that
     // are not modified don't have entries here). The key is of the map is a
     // tuple containing the parent commit id and path to the file (in the child
@@ -788,8 +785,8 @@ fn compute_diff_data(
     git_oid: &git2::Oid,
 ) -> Result<DiffData, git2::Error> {
     let commit = git_repo.find_commit(*git_oid).unwrap();
-    let file_movement = if commit.parent_count() == 1 {
-        let mut movement = HashMap::new();
+    let mut file_movement = HashMap::new();
+    if commit.parent_count() == 1 {
         let mut diff = git_repo
             .diff_tree_to_tree(
                 Some(&commit.parent(0).unwrap().tree().unwrap()),
@@ -813,20 +810,17 @@ fn compute_diff_data(
                 && !delta.new_file().id().is_zero()
                 && delta.old_file().path() != delta.new_file().path()
             {
-                movement.insert(
+                file_movement.insert(
                     delta.new_file().id(),
                     delta.old_file().path().unwrap().to_path_buf(),
                 );
             }
         }
-        Some(movement)
-    } else {
-        None
-    };
+    }
 
     let mut unmodified_lines = HashMap::new();
     find_unmodified_lines(
-        file_movement.as_ref(),
+        &file_movement,
         git_repo,
         &commit,
         PathBuf::new(),
