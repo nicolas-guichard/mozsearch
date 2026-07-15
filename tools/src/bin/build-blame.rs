@@ -788,10 +788,10 @@ fn compute_diff_data(
 ) -> Result<DiffData, git2::Error> {
     let commit = git_repo.find_commit(*git_oid).unwrap();
     let mut file_movement = HashMap::new();
-    if commit.parent_count() == 1 {
+    for parent in commit.parents() {
         let mut diff = git_repo
             .diff_tree_to_tree(
-                Some(&commit.parent(0).unwrap().tree().unwrap()),
+                Some(&parent.tree().unwrap()),
                 Some(&commit.tree().unwrap()),
                 None,
             )
