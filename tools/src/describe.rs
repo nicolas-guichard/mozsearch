@@ -20,6 +20,7 @@ pub fn describe_file(contents: &str, path: &Path, format: &FormatAs) -> Option<S
     // I'm omitting that here. We can add it if needed.
     match format {
         FormatAs::CSS => describe_from_c_comment(substr),
+        FormatAs::QML => None,
         FormatAs::FormatTagLike(_) => describe_html(substr),
         FormatAs::FormatCLike(spec) => {
             if spec.rust_tweaks {
