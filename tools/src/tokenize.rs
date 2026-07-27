@@ -1,6 +1,8 @@
-use std::cell::Cell;
+use std::{cell::Cell, collections::HashMap};
 
 use crate::languages::LanguageSpec;
+
+use tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TokenKind {
@@ -25,6 +27,184 @@ pub struct Token {
 
 fn is_whitespace(ch: char) -> bool {
     ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
+}
+
+fn push_tokens(
+    raw_input: &str,
+    start: usize,
+    end: usize,
+    kind: &TokenKind,
+    tokens: &mut Vec<Token>,
+) {
+    if start == end {
+        return;
+    }
+    // tokens shouldn't span across lines
+    let mut span_start = start;
+    for span in raw_input[start..end].split('\n') {
+        let span_end = span_start + span.len();
+        if span_start != span_end {
+            tokens.push(Token {
+                start: span_start,
+                end: span_end,
+                kind: kind.clone(),
+            });
+        }
+        let newline_needed = span_start + span.len() != end;
+        span_start = span_end;
+        if newline_needed {
+            tokens.push(Token {
+                start: span_start,
+                end: span_start + 1,
+                kind: TokenKind::Newline,
+            });
+            span_start += 1;
+        }
+    }
+}
+
+fn tokenize_with_tree_sitter(
+    language: tree_sitter::Language,
+    language_name: impl Into<String>,
+    highlights_query: &str,
+    injection_query: &str,
+    locals_query: &str,
+    source_code: &str,
+) -> Vec<Token> {
+    lazy_static! {
+        static ref RESERVED_IDENTIFIER: TokenKind =
+            TokenKind::Identifier(Some(crate::languages::SYN_RESERVED_CLASS.to_owned()));
+        static ref KIND_MAP: HashMap<&'static str, TokenKind> = [
+            // Common
+            ("attribute", TokenKind::Identifier(None)),
+            ("boolean", TokenKind::PlainText),
+            ("carriage-return", TokenKind::Newline),
+            ("comment", TokenKind::Comment),
+            ("comment.documentation", TokenKind::Comment),
+            ("constant", TokenKind::Identifier(None)),
+            ("constant.builtin", RESERVED_IDENTIFIER.clone()),
+            ("constructor", TokenKind::Identifier(None)),
+            ("constructor.builtin", RESERVED_IDENTIFIER.clone()),
+            ("embedded", TokenKind::Identifier(None)),
+            ("error", TokenKind::Identifier(None)),
+            ("escape", TokenKind::Identifier(None)),
+            ("function", TokenKind::Identifier(None)),
+            ("function.builtin", RESERVED_IDENTIFIER.clone()),
+            ("keyword", RESERVED_IDENTIFIER.clone()),
+            ("markup", TokenKind::PlainText),
+            ("markup.bold", TokenKind::PlainText),
+            ("markup.heading", TokenKind::PlainText),
+            ("markup.italic", TokenKind::PlainText),
+            ("markup.link", TokenKind::PlainText),
+            ("markup.link.url", TokenKind::PlainText),
+            ("markup.list", TokenKind::PlainText),
+            ("markup.list.checked", TokenKind::PlainText),
+            ("markup.list.numbered", TokenKind::PlainText),
+            ("markup.list.unchecked", TokenKind::PlainText),
+            ("markup.list.unnumbered", TokenKind::PlainText),
+            ("markup.quote", TokenKind::PlainText),
+            ("markup.raw", TokenKind::PlainText),
+            ("markup.raw.block", TokenKind::PlainText),
+            ("markup.raw.inline", TokenKind::PlainText),
+            ("markup.strikethrough", TokenKind::PlainText),
+            ("module", TokenKind::Identifier(None)),
+            ("number", TokenKind::PlainText),
+            ("operator", TokenKind::PlainText),
+            ("property", TokenKind::Identifier(None)),
+            ("property.builtin", RESERVED_IDENTIFIER.clone()),
+            ("punctuation", TokenKind::Punctuation),
+            ("punctuation.bracket", TokenKind::Punctuation),
+            ("punctuation.delimiter", TokenKind::Punctuation),
+            ("punctuation.special", TokenKind::Punctuation),
+            ("string", TokenKind::StringLiteral),
+            ("string.escape", TokenKind::StringLiteral),
+            ("string.regexp", TokenKind::RegularExpressionLiteral),
+            ("string.special", TokenKind::StringLiteral),
+            ("string.special.symbol", TokenKind::StringLiteral),
+            ("tag", TokenKind::Identifier(None)),
+            ("type", TokenKind::Identifier(None)),
+            ("type.builtin", RESERVED_IDENTIFIER.clone()),
+            ("variable", TokenKind::Identifier(None)),
+            ("variable.builtin", RESERVED_IDENTIFIER.clone()),
+            ("variable.member", TokenKind::Identifier(None)),
+            ("variable.parameter", TokenKind::Identifier(None)),
+
+            // QML
+            ("local.scope", TokenKind::Identifier(None)),
+            ("local.definition", TokenKind::Identifier(None)),
+            ("local.reference", TokenKind::Identifier(None)),
+            ("function.method", TokenKind::Identifier(None)),
+            ("function.signal", TokenKind::Identifier(None)),
+        ]
+        .into_iter()
+        .collect();
+        static ref KINDS: Vec<&'static str> = KIND_MAP.keys().copied().collect();
+    }
+
+    let mut config = HighlightConfiguration::new(
+        language,
+        language_name,
+        highlights_query,
+        injection_query,
+        locals_query,
+    )
+    .unwrap();
+    config.configure(&KINDS);
+
+    let mut highlighter = Highlighter::new();
+    let highlights = highlighter
+        .highlight(&config, source_code.as_bytes(), None, |_| None)
+        .unwrap();
+
+    let mut token_kind_stack = vec![];
+    let mut tokens = vec![];
+
+    for event in highlights {
+        match event.unwrap() {
+            HighlightEvent::Source { start, end } => {
+                let kind = token_kind_stack.last().unwrap_or(&TokenKind::PlainText);
+
+                push_tokens(source_code, start, end, kind, &mut tokens);
+            }
+            HighlightEvent::HighlightStart(kind) => {
+                token_kind_stack.push(
+                    KIND_MAP
+                        .get(&KINDS[kind.0])
+                        .cloned()
+                        .unwrap_or(TokenKind::PlainText),
+                );
+            }
+            HighlightEvent::HighlightEnd => {
+                token_kind_stack.pop();
+            }
+        }
+    }
+
+    tokens
+}
+
+pub fn tokenize_qml(source_code: &str) -> Vec<Token> {
+    let highlights_query: String = format!(
+        "{}\n{}\n{}",
+        tree_sitter_javascript::HIGHLIGHT_QUERY,
+        tree_sitter_typescript::HIGHLIGHTS_QUERY,
+        tree_sitter_qmljs::HIGHLIGHTS_QUERY
+    );
+    let locals_query: String = format!(
+        "{}\n{}\n{}",
+        tree_sitter_javascript::LOCALS_QUERY,
+        tree_sitter_typescript::LOCALS_QUERY,
+        tree_sitter_qmljs::LOCALS_QUERY
+    );
+
+    tokenize_with_tree_sitter(
+        tree_sitter_qmljs::LANGUAGE.into(),
+        "qml",
+        &highlights_query,
+        "",
+        &locals_query,
+        source_code,
+    )
 }
 
 pub fn tokenize_css(string: &str) -> Vec<Token> {
@@ -75,40 +255,6 @@ pub fn tokenize_css(string: &str) -> Vec<Token> {
                     TokenKind::Punctuation
                 }
             };
-
-            fn push_tokens(
-                raw_input: &str,
-                start: usize,
-                end: usize,
-                kind: &TokenKind,
-                tokens: &mut Vec<Token>,
-            ) {
-                if start == end {
-                    return;
-                }
-                // tokens shouldn't span across lines
-                let mut span_start = start;
-                for span in raw_input[start..end].split('\n') {
-                    let span_end = span_start + span.len();
-                    if span_start != span_end {
-                        tokens.push(Token {
-                            start: span_start,
-                            end: span_end,
-                            kind: kind.clone(),
-                        });
-                    }
-                    let newline_needed = span_start + span.len() != end;
-                    span_start = span_end;
-                    if newline_needed {
-                        tokens.push(Token {
-                            start: span_start,
-                            end: span_start + 1,
-                            kind: TokenKind::Newline,
-                        });
-                        span_start += 1;
-                    }
-                }
-            }
 
             if has_block {
                 let mut block_start = start;
@@ -1731,6 +1877,12 @@ mod tests {
         check_tokens_match(s, &toks, expected);
     }
 
+    fn check_qml_tokens(s: &str, expected: &[(&str, TokenKind)]) {
+        let toks = tokenize_qml(s);
+        println!("{:#?}", toks);
+        check_tokens_match(s, &toks, expected);
+    }
+
     #[test]
     fn test_raw_strings_cpp() {
         let spec = match select_formatting("test.cpp") {
@@ -2396,6 +2548,25 @@ mod tests {
                 ("#bar", TokenKind::Identifier(None)),
                 ("{", TokenKind::Punctuation),
                 ("}", TokenKind::Punctuation),
+            ],
+        );
+    }
+
+    #[test]
+    fn test_qml() {
+        check_qml_tokens(
+            "Item {\nid: a\n}\n",
+            &[
+                ("Item", TokenKind::Identifier(None)),
+                (" ", TokenKind::PlainText),
+                ("{", TokenKind::Punctuation),
+                ("\n", TokenKind::Newline),
+                ("id", TokenKind::Identifier(None)),
+                (": ", TokenKind::PlainText),
+                ("a", TokenKind::Identifier(None)),
+                ("\n", TokenKind::Newline),
+                ("}", TokenKind::Punctuation),
+                ("\n", TokenKind::Newline),
             ],
         );
     }

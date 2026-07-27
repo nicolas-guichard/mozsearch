@@ -63,6 +63,7 @@ pub fn format_code(
     let tokens = match format {
         FormatAs::Binary => panic!("Unexpected binary file"),
         FormatAs::CSS => tokenize::tokenize_css(input),
+        FormatAs::QML => tokenize::tokenize_qml(input),
         FormatAs::Plain => tokenize::tokenize_plain(input),
         FormatAs::YAML => tokenize::tokenize_yaml(input),
         FormatAs::FormatCLike(spec) => tokenize::tokenize_c_like(input, spec),
@@ -407,6 +408,7 @@ pub fn format_code(
             let tokens = match format {
                 FormatAs::Binary => panic!("Unexpected binary file"),
                 FormatAs::CSS => tokenize::tokenize_css(input),
+                FormatAs::QML => tokenize::tokenize_qml(input),
                 FormatAs::Plain => tokenize::tokenize_plain(input),
                 FormatAs::YAML => tokenize::tokenize_yaml(input),
                 FormatAs::FormatCLike(spec) => tokenize::tokenize_c_like(input, spec),
