@@ -663,6 +663,7 @@ pub enum FormatAs {
     // The 2nd item is the CDATA spec.
     FormatXPIDL(&'static LanguageSpec, &'static LanguageSpec),
     CSS,
+    QML,
     Plain,
     YAML,
     Binary,
@@ -693,6 +694,8 @@ pub fn select_formatting(filename: &str) -> FormatAs {
         "html" | "htm" | "xhtml" | "xht" | "xml" | "xul" => FormatAs::FormatTagLike(&HTML_SPEC),
 
         "css" => FormatAs::CSS,
+
+        "qml" => FormatAs::QML,
 
         "yml" | "yaml" => FormatAs::YAML,
 
