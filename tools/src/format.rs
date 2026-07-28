@@ -23,7 +23,6 @@ use crate::languages::FormatAs;
 use crate::links;
 use crate::templating::builder::{build_and_parse_coverage_history, build_and_parse_dir_listing};
 use crate::tokenize;
-use crate::utils::OwnedOrBorrowed;
 
 use crate::file_format::analysis::{
     AnalysisSource, ExpansionInfo, WithLocation, collect_file_syms_from_source,
@@ -962,31 +961,19 @@ fn format_to_slug_attribute(format: &FormatAs) -> String {
 }
 
 fn get_submodule_object_at<'a>(
-    repo: &OwnedOrBorrowed<'a, Repository>,
+    repo: &Repository,
     entry: TreeEntry,
     submodule_path: &Path,
     full_path: &Path,
-) -> Result<(OwnedOrBorrowed<'a, Repository>, Oid), &'static str> {
+) -> Result<Oid, &'static str> {
     let submodule_path_str = submodule_path.to_str().ok_or("UTF-8 error")?;
-    let submodule = repo
-        .find_submodule(submodule_path_str)
-        .or(Err("Can't find submodule"))?;
-    let subrepo = submodule.open().or(Err("Can't open submodule"))?;
     let path_in_submodule = full_path
         .strip_prefix(submodule_path_str)
         .expect("submodule path is a always an ancestor of full path");
-    get_object_at(
-        OwnedOrBorrowed::Owned(subrepo),
-        entry.id(),
-        path_in_submodule,
-    )
+    get_object_at(repo, entry.id(), path_in_submodule)
 }
 
-fn get_object_at<'a>(
-    repo: OwnedOrBorrowed<'a, Repository>,
-    commit: Oid,
-    path: &Path,
-) -> Result<(OwnedOrBorrowed<'a, Repository>, Oid), &'static str> {
+fn get_object_at(repo: &Repository, commit: Oid, path: &Path) -> Result<Oid, &'static str> {
     let commit = repo.find_commit(commit).or(Err("Bad revision"))?;
     let tree = commit.tree().or(Err("Git commit with no tree"))?;
 
@@ -994,7 +981,7 @@ fn get_object_at<'a>(
         let tree_id = tree.id();
         drop(commit);
         drop(tree);
-        return Ok((repo, tree_id));
+        return Ok(tree_id);
     }
 
     if let Ok(entry) = tree.get_path(path) {
@@ -1004,11 +991,11 @@ fn get_object_at<'a>(
             // If the path was exactly for the root of a submodule, handle it
             // here. Paths inside the submodule will be handled below after
             // first walking the ancestors to find any submodules.
-            git2::ObjectType::Commit => get_submodule_object_at(&repo, entry, path, path),
+            git2::ObjectType::Commit => get_submodule_object_at(repo, entry, path, path),
             git2::ObjectType::Tree | git2::ObjectType::Blob => {
                 drop(commit);
                 drop(tree);
-                Ok((repo, entry.id()))
+                Ok(entry.id())
             }
             _ => Err("Unsupported git object kind"),
         };
@@ -1026,7 +1013,7 @@ fn get_object_at<'a>(
         })
         .ok_or("File, directory, or parent git submodule not found")?;
 
-    get_submodule_object_at(&repo, entry, submodule_path, path)
+    get_submodule_object_at(repo, entry, submodule_path, path)
 }
 
 /// Dynamically renders the contents of a specific file with blame annotations but without any
@@ -1045,7 +1032,8 @@ pub fn format_path(
     let commit_obj = git.repo.revparse_single(rev).map_err(|_| "Bad revision")?;
     let path = Path::new(path.trim_end_matches('/'));
 
-    let (repo, oid) = get_object_at(OwnedOrBorrowed::Borrowed(&git.repo), commit_obj.id(), path)?;
+    let repo = &git.repo;
+    let oid = get_object_at(repo, commit_obj.id(), path)?;
 
     let object = repo
         .find_object(oid, None)
