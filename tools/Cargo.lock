@@ -4280,6 +4280,7 @@ dependencies = [
  "tracing-forest",
  "tracing-subscriber",
  "tree-sitter",
+ "tree-sitter-cmake",
  "tree-sitter-cpp",
  "tree-sitter-highlight",
  "tree-sitter-java",
@@ -4461,6 +4462,16 @@ dependencies = [
  "regex-syntax 0.8.11",
  "serde_json",
  "streaming-iterator",
+ "tree-sitter-language",
+]
+
+[[package]]
+name = "tree-sitter-cmake"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "164e0c4f4236ec5ceff14824a5528615cf462e100467e49826442ff57d327061"
+dependencies = [
+ "cc",
  "tree-sitter-language",
 ]
 
