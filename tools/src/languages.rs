@@ -671,12 +671,17 @@ pub enum FormatAs {
     FormatXPIDL(&'static LanguageSpec, &'static LanguageSpec),
     CSS,
     QML,
+    CMake,
     Plain,
     YAML,
     Binary,
 }
 
 pub fn select_formatting(filename: &str) -> FormatAs {
+    if filename.to_lowercase() == "cmakelists.txt" {
+        return FormatAs::CMake;
+    }
+
     let ext = match Path::new(filename).extension() {
         Some(ext) => ext.to_str().unwrap(),
         None => "",
@@ -702,6 +707,8 @@ pub fn select_formatting(filename: &str) -> FormatAs {
         "html" | "htm" | "xhtml" | "xht" | "xml" | "xul" => FormatAs::FormatTagLike(&HTML_SPEC),
 
         "css" => FormatAs::CSS,
+
+        "cmake" => FormatAs::CMake,
 
         "qml" => FormatAs::QML,
 

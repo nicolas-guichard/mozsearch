@@ -207,6 +207,17 @@ pub fn tokenize_qml(source_code: &str) -> Vec<Token> {
     )
 }
 
+pub fn tokenize_cmake(source_code: &str) -> Vec<Token> {
+    tokenize_with_tree_sitter(
+        tree_sitter_cmake::LANGUAGE.into(),
+        "cmake",
+        tree_sitter_cmake::HIGHLIGHTS_QUERY,
+        tree_sitter_cmake::INJECTIONS_QUERY,
+        "",
+        source_code,
+    )
+}
+
 pub fn tokenize_css(string: &str) -> Vec<Token> {
     fn tokenize_css_block(input: &mut cssparser::Parser, raw_input: &str, tokens: &mut Vec<Token>) {
         use cssparser::Token::*;
