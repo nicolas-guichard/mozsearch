@@ -13,7 +13,7 @@ use std::{
 use chrono::{DateTime, FixedOffset};
 use clap::Parser;
 
-use tools::file_format::code_coverage_report::{Report, ReportMetadata};
+use tools::file_format::code_coverage_report::{Report, ReportMetadata, last_quantized_ref};
 
 #[derive(Parser)]
 #[command(version, about)]
@@ -41,6 +41,10 @@ struct Args {
     /// Name of the testsuite covered by this report
     #[arg(short, long, default_value = "all")]
     testsuite: String,
+
+    /// Whether to save log10(hit count + 1) (default) or the exact hit count
+    #[arg(short, long)]
+    exact: bool,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -52,6 +56,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         commit: args.commit,
         branch: branch.clone(),
         date: args.date,
+        exact: args.exact,
     };
 
     Command::new("git")
@@ -67,6 +72,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .output()?
         .status
         .success();
+
+    if existing_branch && !metadata.exact {
+        Command::new("git")
+            .args([
+                "reset",
+                &format!("refs/heads/{branch}"),
+                &last_quantized_ref(&branch),
+            ])
+            .arg(&args.output_repo)
+            .spawn()?
+            .wait()?;
+    }
 
     let mut fast_import = Command::new("git")
         .current_dir(&args.output_repo)
