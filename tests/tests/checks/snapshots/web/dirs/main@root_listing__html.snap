@@ -609,7 +609,7 @@ input_file: inputs/web/dirs/root_listing__html
 ">This file is intended to create interesting test cases for searches against
  a base class with a limited number of overrides.
 </td>
-          <td class="size"><a href="/tests/source/overs.cpp">1521</a></td>
+          <td class="size"><a href="/tests/source/overs.cpp">2784</a></td>
           <td class="coverage"><a href="/tests/source/overs.cpp" class="cov-percentage cov-percentage-none" title="There's no coverage data available for this file.">-</a></td>
         </tr>
 
