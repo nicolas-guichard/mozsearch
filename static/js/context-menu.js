@@ -1606,46 +1606,81 @@ var ContextMenu = new (class ContextMenu extends ContextMenuOrSubMenu {
         // Helper for cases like showing the recv def when the user is clicking
         // on a call to its send, but where we don't want to crowd the context
         // menu with the decl.
-        const directDefJumpify = (jumpref, pretty) => {
-          if (!jumpref.jumps) {
-            return;
-          }
-
-          if (jumpref.jumps.def && jumpref.jumps.def !== sourceLineClicked) {
-            jumpMenuItems.push(new GotoMenuItem({
+        //
+        // Returns whether a menu entry was added or not.
+        const directDefJumpify = (menu, jumpref, pretty) => {
+          if (jumpref.jumps?.def && jumpref.jumps.def !== sourceLineClicked) {
+            menu.push(new GotoMenuItem({
               html: this.fmt("Go to definition of <strong>_</strong>", pretty),
               href: `/${tree}/source/${jumpref.jumps.def}`,
               icon: "export-alt",
               section: "jumps",
               confidence,
             }));
+            return true;
           }
+          return false;
         }
 
-        // If the symbol has <= 2 overrides (we depend on the logic in our
-        // rust `determine_desired_extra_syms_from_jumpref` helper at jumpref
-        // generation time, so you can't just change the number here and have
-        // things work out well), then emit direct def jump options.
-        //
-        // This is motivated by XPIDL where we want to be able to jump directly
-        // to the overrides of the use of an XPIDL method in C++ where we are
-        // dealing with an interface pointer, as well as for the binding slots
-        // for when we are dealing with an XPIDL IDL def symbol.  This is
-        // factored out into a helper because those are different call-sites; we
-        // don't do an open-ended graph traversal.
+        // Provide a submenu to jump to overrides.
+        // If there's a single override, skip the submenu and just add the jump.
+        // If there's more than MAX_OVERRIDEN_BY_LINKS, link to the complete list as well.
         const overrideJumpifyHelper = (jumpref) => {
-          if (jumpref.meta?.overriddenBy?.length && jumpref.meta?.overriddenBy?.length <= 2) {
-            for (const overSym of jumpref.meta.overriddenBy) {
+          // Keep in sync with MAX_OVERRIDEN_BY_LINKS in `determine_desired_extra_syms_from_jumpref`
+          // so that SYM_INFO has the data we want.
+          const MAX_OVERRIDEN_BY_LINKS = 10;
+
+          const overriddenBy = jumpref.meta?.overriddenBy;
+          if (overriddenBy?.length) {
+            if (overriddenBy.length === 1) {
+              const overSym = overriddenBy[0];
               const overInfo = SYM_INFO[overSym];
               if (overInfo) {
-                let overPretty;
-                if (jumpref.meta.overriddenBy.length === 1) {
-                  overPretty = `Sole Override ${overInfo.pretty}`;
-                } else {
-                  overPretty = `Override ${overInfo.pretty}`;
-                }
-                directDefJumpify(overInfo, overPretty)
+                const overPretty = `Sole Override ${overInfo.pretty}`;
+                directDefJumpify(jumpMenuItems, overInfo, overPretty);
+              } else {
+                console.warn(`Missing SYM_INFO for ${overSym}.`)
               }
+            } else {
+              const submenuItems = [];
+              const submenuSearches = [];
+
+              if (overriddenBy.length > MAX_OVERRIDEN_BY_LINKS) {
+                submenuItems.push(new MenuItem({
+                  html: `Show all (${MAX_OVERRIDEN_BY_LINKS} out of ${overriddenBy.length} listed below)`,
+                  href: `/${tree}/search?q=symbol:${sym}&redirect=false`,
+                  section: "symbol-searches",
+                  icon: "search",
+                }));
+              }
+
+              for (const overSym of overriddenBy.slice(0, MAX_OVERRIDEN_BY_LINKS)) {
+                const overInfo = SYM_INFO[overSym];
+                if (overInfo) {
+                  const hasDirectJump = directDefJumpify(submenuItems, overInfo, overInfo.pretty);
+                  // When an override doesn't have a clear definition to jump to, provide a search entry instead.
+                  // This happens for instance when the symbol is defined inside a macro because we list both the
+                  // macro call and the token inside the macro definition as definition sites.
+                  if (!hasDirectJump) {
+                    submenuSearches.push({
+                      label: overInfo.pretty,
+                      syms: [overSym],
+                    });
+                  }
+                } else {
+                  console.warn(`Missing SYM_INFO for ${overSym}.`)
+                }
+              }
+
+              jumpMenuItems.push(new MenuItemWithSubMenu({
+                html: `${overriddenBy.length} Overrides`,
+                tree,
+                icon: "export-alt",
+                section: "jumps",
+                items: submenuItems,
+                searches: submenuSearches,
+                menu: this,
+              }));
             }
           }
         }
@@ -1698,7 +1733,7 @@ var ContextMenu = new (class ContextMenu extends ContextMenuOrSubMenu {
                     if (slot?.implKind) {
                       maybeSlotImplKind = ` ${slot.implKind}`;
                     }
-                    directDefJumpify(recvJumpref, `${implKind}${maybeLang} ${slot.slotKind}${maybeSlotImplKind} ${recvJumpref.pretty}`);
+                    directDefJumpify(jumpMenuItems, recvJumpref, `${implKind}${maybeLang} ${slot.slotKind}${maybeSlotImplKind} ${recvJumpref.pretty}`);
                   }
                 }
               }
