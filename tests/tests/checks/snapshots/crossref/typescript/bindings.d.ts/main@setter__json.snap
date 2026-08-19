@@ -30,6 +30,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/setter__json
           "structured": 1,
           "pretty": "tsClass::tsSetter",
           "sym": "S_js_ts/src/bindings.d.ts/tsClass#tsSetter().",
+          "js_sym": "#tsSetter",
           "type_pretty": "any",
           "kind": "method",
           "subsystem": null,

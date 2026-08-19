@@ -30,6 +30,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/method__json
           "structured": 1,
           "pretty": "tsMethod",
           "sym": "S_js_ts/src/bindings.d.ts/tsMethod().",
+          "js_sym": "#tsMethod",
           "type_pretty": "boolean",
           "kind": "method",
           "subsystem": null,

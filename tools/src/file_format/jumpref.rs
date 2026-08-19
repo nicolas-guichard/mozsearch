@@ -41,6 +41,9 @@ pub struct JumprefData {
     pub jumps: Jumps,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub idl_syms: Option<Vec<Ustr>>,
+    /// Candidate scip-typescript symbols if this is a js-analyze symbol
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub ts_syms: Vec<Ustr>,
 }
 
 /// Transform a crossref data that will be written into crossref into the
@@ -66,6 +69,7 @@ pub fn convert_crossref_value_to_sym_info_rep(
             },
             meta: None,
             idl_syms: None,
+            ts_syms: vec![],
         };
     };
 
@@ -98,6 +102,7 @@ pub fn convert_crossref_value_to_sym_info_rep(
         jumps,
         meta: cross_val.meta,
         idl_syms: cross_val.idl_syms,
+        ts_syms: cross_val.ts_syms,
     }
 }
 
@@ -134,6 +139,13 @@ pub fn determine_desired_extra_syms_from_jumpref(
             extra_syms.push((*sym, JumprefTraversals::NormalExtra));
         }
     }
+    extra_syms.extend(
+        jumpref
+            .ts_syms
+            .iter()
+            .copied()
+            .map(|sym| (sym, JumprefTraversals::NormalExtra)),
+    );
     if let Some(owner) = jumpref
         .meta
         .as_ref()

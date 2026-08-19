@@ -30,6 +30,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/attribute__json
           "structured": 1,
           "pretty": "tsClass::tsAttribute",
           "sym": "S_js_ts/src/bindings.d.ts/tsClass#tsAttribute.",
+          "js_sym": "#tsAttribute",
           "type_pretty": "string",
           "kind": "field",
           "subsystem": null,

@@ -30,6 +30,7 @@ input_file: inputs/crossref/typescript/bindings.d.ts/class__json
           "structured": 1,
           "pretty": "tsClass",
           "sym": "S_js_ts/src/bindings.d.ts/tsClass#",
+          "js_sym": "#tsClass",
           "type_pretty": "class tsClass",
           "kind": "class",
           "subsystem": null,
