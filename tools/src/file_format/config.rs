@@ -203,16 +203,6 @@ impl TreeConfigPaths {
 pub struct ScipSubtreeConfig {
     /// The path the SCIP index can be found at.
     pub scip_index_path: String,
-    /// The tree-relative path where the files referenced by the index can be
-    /// found.  For example, if there's a JS subtree that lives at
-    /// "components/foo" and that's the root where the build script runs
-    /// scip-typescript, then that's the value to put here, because the index
-    /// will have paths relative to that directory.  (And while the index will
-    /// have a "ProjectRoot", we want to handle the case where the SCIP index
-    /// was generated on another machine.)
-    ///
-    /// Leave this empty if the subtree is actually at the root of the tree.
-    pub subtree_root: String,
 }
 
 /// Thin wrapper around ThreadLocal<Repository> to make GitData Sync

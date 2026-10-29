@@ -59,12 +59,6 @@ struct ScipIndexerCli {
     #[arg(long, value_parser)]
     subtree_name: Option<String>,
 
-    /// Relative path from the root of the searchfox source tree to the SCIP
-    /// index's contents.  If the SCIP index is from the root then this should
-    /// be ".", otherwise it should be the relative path like "js-subtree/".
-    #[arg(long, value_parser)]
-    subtree_root: String,
-
     /// Platform name if this is per-platform.
     #[arg(long, value_parser)]
     platform: Option<String>,
@@ -718,7 +712,6 @@ fn analyse_symbol(
 fn analyze_using_scip(
     tree_config: &config::TreeConfig,
     subtree_name: Option<&str>,
-    subtree_root: &str,
     platform: &Option<String>,
     scip_file: PathBuf,
 ) {
@@ -1088,7 +1081,6 @@ fn analyze_using_scip(
 
     for doc in &index.documents {
         let searchfox_path = Path::new(&doc.relative_path).to_owned();
-        let searchfox_path = Path::new(&subtree_root).to_owned().join(&searchfox_path);
 
         let output_file = analysis_root.join(&searchfox_path);
         if let Err(err) = create_output_dir(&output_file) {
@@ -1111,8 +1103,7 @@ fn analyze_using_scip(
             }
         };
 
-        let source_fname =
-            tree_config.find_source_file(&format!("{}/{}", subtree_root, &doc.relative_path));
+        let source_fname = tree_config.find_source_file(&doc.relative_path);
         let source_contents = match std::fs::read(source_fname.clone()) {
             Ok(f) => f,
             Err(_) => {
@@ -1652,7 +1643,6 @@ fn main() {
         analyze_using_scip(
             tree_config,
             cli.subtree_name.as_deref(),
-            &cli.subtree_root,
             &cli.platform,
             file,
         );
