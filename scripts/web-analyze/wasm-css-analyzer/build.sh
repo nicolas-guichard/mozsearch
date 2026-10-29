@@ -2,7 +2,7 @@
 
 set -e
 
-wasm-pack build --release --target web
+wasm-pack build --profile wasm-release --target web
 
 mkdir -p out
 

@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = ["tools", "scripts/web-analyze/wasm-css-analyzer"]
+
+[workspace.dependencies]
+uniffi = { version = "0.32.2" }
+
+# Build release mode with line number info for easier debugging when
+# we hit panics in production
+[profile.release]
+debug = 1
+
+[profile.wasm-release]
+inherits = "release"
+lto = true
+codegen-units = 1
+opt-level = "z"

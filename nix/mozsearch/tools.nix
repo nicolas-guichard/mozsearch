@@ -8,27 +8,38 @@
   makeBinaryWrapper,
   graphviz,
 }: let
-  commonArgs = {
-    src = runCommandLocal "mozsearch-tools-source" {} ''
-      mkdir -p $out
-      cp -r ${../../tools} $out/tools
-      cp -r ${../../deps} $out/deps
-    '';
+  lalrpopFilter = path: _type: builtins.match ".*\\.lalrpop$" path != null;
+  protobufFilter = path: _type: builtins.match ".*\\.proto$" path != null;
+  scmFilter = path: _type: builtins.match ".*\\.scm$" path != null;
+  liquidFilter = path: _type: builtins.match ".*\\.liquid$" path != null;
+  srcFilter = path: type:
+    (lalrpopFilter path type)
+    || (protobufFilter path type)
+    || (scmFilter path type)
+    || (liquidFilter path type)
+    || (craneLib.filterCargoSources path type);
 
-    nativeBuildInputs = [
-      pkgconf
-      protobuf
-      makeBinaryWrapper
-    ];
+  commonArgs =
+    {
+      src = lib.cleanSourceWith {
+        src = ../..;
+        filter = srcFilter;
+        name = "source";
+      };
 
-    buildInputs = [
-      openssl
-    ];
+      nativeBuildInputs = [
+        pkgconf
+        protobuf
+        makeBinaryWrapper
+      ];
 
-    sourceRoot = "mozsearch-tools-source/tools";
-    cargoToml = ../../tools/Cargo.toml;
-    cargoLock = ../../tools/Cargo.lock;
-  };
+      buildInputs = [
+        openssl
+      ];
+
+      cargoExtraArgs = "-p tools";
+    }
+    // craneLib.crateNameFromCargoToml {cargoToml = ../../tools/Cargo.toml;};
   cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 in
   craneLib.buildPackage (commonArgs

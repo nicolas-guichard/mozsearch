@@ -20,8 +20,8 @@
       "codesearch_port": 8081,
       "scip_subtrees": {
         "rust": {
-          "scip_index_path": "$WORKING/searchfox/objdir/tools/rust.scip",
-          "subtree_root": "tools"
+          "scip_index_path": "$WORKING/searchfox/objdir/rust.scip",
+          "subtree_root": ""
         }
       }
     }

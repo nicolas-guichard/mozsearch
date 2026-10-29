@@ -15,8 +15,7 @@ clang-plugin/compile_commands.json
 clang-plugin/clang-version.cache
 clang-plugin/clang-version.cache.tmp
 /js
-tools/target
-/scripts/web-analyze/wasm-css-analyzer/target
+/target
 /scripts/web-analyze/wasm-css-analyzer/pkg
 /scripts/web-analyze/wasm-css-analyzer/out
 paths

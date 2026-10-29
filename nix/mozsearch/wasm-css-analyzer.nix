@@ -1,4 +1,5 @@
 {
+  lib,
   runCommandLocal,
   cmake,
   which,
@@ -27,32 +28,34 @@
   };
   subdir = "scripts/web-analyze/wasm-css-analyzer";
 
-  commonArgs = {
-    src = runCommandLocal "mozsearch-wasm-css-analyzer-source" {} ''
-      mkdir -p $out
-      mkdir -p $out/scripts/web-analyze/
-      cp -r ${../../${subdir}} $out/${subdir}
-      cp -r ${../../tools} $out/tools
-      cp -r ${../../deps} $out/deps
-    '';
+  lalrpopFilter = path: _type: builtins.match ".*\\.lalrpop$" path != null;
+  protobufFilter = path: _type: builtins.match ".*\\.proto$" path != null;
+  buildShFilter = path: _type: builtins.match ".*build\\.sh$" path != null;
+  srcFilter = path: type:
+    (lalrpopFilter path type) || (protobufFilter path type) || (buildShFilter path type) || (craneLib.filterCargoSources path type);
 
-    sourceRoot = "mozsearch-wasm-css-analyzer-source/${subdir}";
-    cargoToml = ../../${subdir}/Cargo.toml;
-    cargoLock = ../../${subdir}/Cargo.lock;
+  commonArgs =
+    {
+      src = lib.cleanSourceWith {
+        src = ../..;
+        filter = srcFilter;
+        name = "source";
+      };
 
-    CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
+      CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
 
-    nativeBuildInputs = [
-      cmake
-      which
-      wasm-pack
-      wasm-snip
-      binaryen
-      wasm-bindgen-cli
-      llvmPackages.bintools
-      protobuf
-    ];
-  };
+      nativeBuildInputs = [
+        cmake
+        which
+        wasm-pack
+        wasm-snip
+        binaryen
+        wasm-bindgen-cli
+        llvmPackages.bintools
+        protobuf
+      ];
+    }
+    // craneLib.crateNameFromCargoToml {cargoToml = ../../${subdir}/Cargo.toml;};
 
   cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 in
@@ -60,6 +63,7 @@ in
     // {
       inherit cargoArtifacts;
 
+      preBuild = "cd ${subdir}";
       cargoBuildCommand = "HOME=$(pwd) ./build.sh";
 
       installPhaseCommand = ''

@@ -98,14 +98,3 @@ ustr = { version = "1.0", features = ["serde"] }
 uuid = { version = "1.2.1", features = ["std", "v4"] }
 walkdir = "2.3.2"
 zstd = "0.13.3"
-
-[patch.crates-io]
-# If we want to debug what tracing-forest is seeing, I instrumented this with
-# `println!` at some important spots.
-#tracing-forest = { git = "https://github.com/asutherland/tracing-forest.git", rev = "0fef62de683f52f7888ad83891203ac4a645bf8d" }
-
-# Build release mode with line number info for easier debugging when
-# we hit panics in production
-[profile.release]
-debug = 1
-incremental = true
