@@ -10,13 +10,13 @@
   gradle = gradle_9;
   self = stdenv.mkDerivation (finalAttrs: {
     pname = "scip-java";
-    version = "0.13.2";
+    version = "0.14.2";
 
     src = fetchFromGitHub {
       owner = "scip-code";
       repo = finalAttrs.pname;
       rev = "v${finalAttrs.version}";
-      hash = "sha256-DGpEqg/CF1/i2d+L/E0fZ0VTfQ9ir+rjx6tIdb3RWtA=";
+      hash = "sha256-pOFvaQdj7gmhqpawD1pzyMA488zOtzAcTYw9fVDPsdc=";
     };
 
     nativeBuildInputs = [
@@ -45,6 +45,9 @@
 
       makeWrapper ${lib.getExe jre} $out/bin/scip-java \
         --add-flags "-cp $classpath org.scip_code.scip_java.ScipJava"
+
+      makeWrapper ${lib.getExe jre} $out/bin/scip-kotlin-analysis \
+        --add-flags "-cp $classpath org.scip_code.scip_java.kotlin_analysis.MainKt"
 
       runHook postInstall
     '';
